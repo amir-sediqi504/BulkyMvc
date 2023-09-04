@@ -22,9 +22,9 @@ namespace BulkyMvc.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-              return _context.Categories != null ? 
-                          View(await _context.Categories.ToListAsync()) :
-                          Problem("Entity set 'BulkyDbContext.Categories'  is null.");
+            var objCategoryList = _context.Categories.ToList();
+            return View(objCategoryList);
+           
         }
 
         // GET: Categories/Details/5
