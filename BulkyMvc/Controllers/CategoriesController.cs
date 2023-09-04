@@ -69,91 +69,75 @@ namespace BulkyMvc.Controllers
         }
 
         // GET: Categories/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
-            if (id == null || _context.Categories == null)
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            var categoryFromDb = _context.Categories.Find(id);
+            //var categoryFromDbFirst = _db.Categories.FirstOrDefault(u=>u.Id==id);
+            //var categoryFromDbSingle = _db.Categories.SingleOrDefault(u => u.Id == id);
+
+            if (categoryFromDb == null)
             {
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-            return View(category);
+            return View(categoryFromDb);
         }
 
-        // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,DisplayOrder,CreatedDateTime")] Category category)
+        public IActionResult Edit(Category obj)
         {
-            if (id != category.Id)
+            if (obj.Name == obj.DisplayOrder.ToString())
             {
-                return NotFound();
+                ModelState.AddModelError("name", "The DisplayOrder cannot exactly match the Name.");
             }
-
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(category);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoryExists(category.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Categories.Update(obj);
+                _context.SaveChanges();
+
+                return RedirectToAction("Index");
             }
-            return View(category);
+            return View(obj);
         }
 
-        // GET: Categories/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
-            if (id == null || _context.Categories == null)
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            var categoryFromDb = _context.Categories.Find(id);
+            //var categoryFromDbFirst = _db.Categories.FirstOrDefault(u=>u.Id==id);
+            //var categoryFromDbSingle = _db.Categories.SingleOrDefault(u => u.Id == id);
+
+            if (categoryFromDb == null)
             {
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            return View(category);
+            return View(categoryFromDb);
         }
 
-        // POST: Categories/Delete/5
+        //POST
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeletePOST(int? id)
         {
-            if (_context.Categories == null)
+            var obj = _context.Categories.Find(id);
+            if (obj == null)
             {
-                return Problem("Entity set 'BulkyDbContext.Categories'  is null.");
+                return NotFound();
             }
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-                _context.Categories.Remove(category);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            _context.Categories.Remove(obj);
+            _context.SaveChanges();
+            TempData["success"] = "Category deleted successfully";
+            return RedirectToAction("Index");
+
         }
 
         private bool CategoryExists(int id)
