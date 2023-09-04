@@ -48,6 +48,7 @@ namespace BulkyMvc.Controllers
         // GET: Categories/Create
         public IActionResult Create()
         {
+
             return View();
         }
 
@@ -55,16 +56,16 @@ namespace BulkyMvc.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,DisplayOrder,CreatedDateTime")] Category category)
+        public IActionResult Create(Category obj)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(category);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                _context.Categories.Add(obj);
+                _context.SaveChanges();
+                return RedirectToAction("Index");
             }
-            return View(category);
+            else { return View(obj); }
+
         }
 
         // GET: Categories/Edit/5
